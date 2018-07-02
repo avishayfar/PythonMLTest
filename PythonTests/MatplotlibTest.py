@@ -41,7 +41,7 @@ import numpy as np
 #     markerfacecolor='blue', markersize=12)
 #plt.show()
 
-#two grahps at the same location
+#two grahps at  the same location
 npList = np.arange(20)
 lines = plt.plot(npList, npList, npList, npList**2)
 plt.setp(lines,color='cyan', linestyle='dotted', marker='o',markerfacecolor='blue', markersize=12)

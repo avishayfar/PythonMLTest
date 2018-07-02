@@ -42,7 +42,7 @@ def runAlgo( model, name, excelWriter ):
         print("Avg15 ", avg15)
         improve = avg15/avg*100
         print("Improve ", improve)
-        print("--------")
+        print("---------")
 
         row = [avg,avg15,improve]
         finalResultsDf.loc[num] = row
