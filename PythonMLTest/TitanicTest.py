@@ -22,20 +22,20 @@ from sklearn.ensemble import RandomForestClassifier
 pandas.options.mode.chained_assignment = None
 
 url = "C:\\ML\\CSV\\titanic_train.csv"
-dataset = pandas.read_csv(url)
-print(dataset.shape)
-print(dataset.head(10))
+df = pandas.read_csv(url)
+print(df.shape)
+print(df.head(10))
 
 
-median_age = dataset['age'].median()
+median_age = df['age'].median()
 print("Median age is {}".format(median_age))
 
-dataset['age'].fillna(median_age, inplace = True)
-print(dataset.head(10))
+df['age'].fillna(median_age, inplace = True)
+print(df.head(10))
 
 
 print()
-data_inputs = dataset[["pclass", "age", "sex"]]
+data_inputs = df[["pclass", "age", "sex"]]
 print(data_inputs.head(10))
 
 print()
@@ -49,25 +49,22 @@ data_inputs["sex"] = np.where(data_inputs["sex"] == "female", 0, 1)
 print(data_inputs.head(10))
 
 print()
-expected_output = dataset[["survived"]]
+expected_output = df[["survived"]]
 print(expected_output.head(10))
 
-#test_size - test_size=0.33 means 33% of the sample is to be used for testing, the other for training.
-#random_state - is used to initialise the inbuilt randomiser, so we get the same result from the randomiser each time.
-#in most machine learning the input called - X
-#                         the expected output called - Y
-inputs_train, inputs_test, expected_output_train, expected_output_test   =  model_selection.train_test_split (data_inputs, expected_output, test_size = 0.33, random_state = 42)
+
+x_train, x_test, y_train, y_test   =  model_selection.train_test_split (data_inputs, expected_output, test_size = 0.33, random_state = 42)
 
 print()
-print(inputs_train.head())
+print(x_train.head())
 print()
-print(expected_output_train.head())
+print(y_train.head())
 
 #Start machine learning.
 
 rf = RandomForestClassifier (n_estimators=100)
-rf.fit(inputs_train, expected_output_train)
-accuracy = rf.score(inputs_test, expected_output_test)
+rf.fit(x_train, y_train)
+accuracy = rf.score(x_test, y_test)
 print("Accuracy = {}%".format(accuracy * 100))
 
 

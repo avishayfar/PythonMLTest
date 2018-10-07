@@ -14,14 +14,14 @@ pandas.options.mode.chained_assignment = None
 
 url = "C:\\Users\\af250128\\Desktop\\CSV\\trainDB.csv"
 names = ["Stores", "cashier", "Items Amount", "Amount", "num of Returns", "IsTbr", "isNrrLst","Fruad" ]
-dataset = pandas.read_csv(url, names=names)
+df = pandas.read_csv(url, names=names)
 
 # shape
-print(dataset.shape)
+print(df.shape)
 
 
-# Split-out validation dataset
-array = dataset.values
+# Split-out validation df
+array = df.values
 data_x = array[:,0:7]
 data_y = array[:,7]
 

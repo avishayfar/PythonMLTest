@@ -5,9 +5,11 @@ VisualStudioVersion = 15.0.27004.2009
 MinimumVisualStudioVersion = 10.0.40219.1
 Project("{888888A0-9F3D-457C-B088-3A5042F75D52}") = "PythonMLTest", "PythonMLTest\PythonMLTest.pyproj", "{CED760B9-2C39-4EE5-80A6-4AB3A55C15B2}"
 EndProject
-Project("{888888A0-9F3D-457C-B088-3A5042F75D52}") = "PythonTests", "PythonTests\PythonTests.pyproj", "{5C8F93C4-5A29-4938-B640-916BA5D4DA14}"
-EndProject
 Project("{888888A0-9F3D-457C-B088-3A5042F75D52}") = "SelfScanFraud", "SelfScanFraud\SelfScanFraud.pyproj", "{B3F2CEF7-52BB-4A35-A339-95250997860D}"
+EndProject
+Project("{888888A0-9F3D-457C-B088-3A5042F75D52}") = "FraudBase", "FraudBase\FraudBase.pyproj", "{1FDF14E9-A156-43E8-9755-FB81240E80CA}"
+EndProject
+Project("{888888A0-9F3D-457C-B088-3A5042F75D52}") = "FraudDetector", "FraudDetector\FraudDetector.pyproj", "{775D209A-CF16-4738-8B68-11D68142BE22}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
@@ -17,10 +19,12 @@ Global
 	GlobalSection(ProjectConfigurationPlatforms) = postSolution
 		{CED760B9-2C39-4EE5-80A6-4AB3A55C15B2}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
 		{CED760B9-2C39-4EE5-80A6-4AB3A55C15B2}.Release|Any CPU.ActiveCfg = Release|Any CPU
-		{5C8F93C4-5A29-4938-B640-916BA5D4DA14}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
-		{5C8F93C4-5A29-4938-B640-916BA5D4DA14}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{B3F2CEF7-52BB-4A35-A339-95250997860D}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
 		{B3F2CEF7-52BB-4A35-A339-95250997860D}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{1FDF14E9-A156-43E8-9755-FB81240E80CA}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{1FDF14E9-A156-43E8-9755-FB81240E80CA}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{775D209A-CF16-4738-8B68-11D68142BE22}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{775D209A-CF16-4738-8B68-11D68142BE22}.Release|Any CPU.ActiveCfg = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE

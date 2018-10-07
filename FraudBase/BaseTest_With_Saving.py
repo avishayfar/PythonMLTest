@@ -5,13 +5,13 @@ from pandas.tools.plotting import scatter_matrix
 import matplotlib.pyplot as plt
 from sklearn import model_selection
 from sklearn.externals import joblib
-from sklearn.ensemble import RandomForestClassifier
 from sklearn.neighbors import KNeighborsClassifier
+
 
 # Just to switch off pandas warning
 pandas.options.mode.chained_assignment = None
 
-url = "C:\\FRD\\FRDTransaction.xlsx"
+url = "C:\\SeScFRD\\FinalRescan\\phase3Rescan.xlsx"
 
 df = pandas.read_excel(url)
 
@@ -30,6 +30,8 @@ print(df80.shape)
 print("df20")
 print(df20.shape)
 
+print("Column")
+print(df.columns.values)
 
 # Split-out validation df
 array = df80.values
@@ -45,20 +47,17 @@ knn = KNeighborsClassifier()
 knn.fit(x_train,y_train.astype(int))
 accuracy = knn.score(x_test, y_test.astype(int))
 
-#rf = RandomForestClassifier (n_estimators=100)
-#rf.fit(x_train, y_train.astype(int))
-#accuracy = rf.score(x_test, y_test.astype(int))
 
 print("Accuracy = {}%".format(accuracy * 100))
 
 #Save the ML
 
-#joblib.dump(rf, 'C:\\FRD\\FraudML.pkl')
+joblib.dump(knn, 'C:\\SeScFRD\\SavedModels\\FraudML.pkl')
 
 
 #Load the ML
 
-#clf = joblib.load('C:\\FRD\\FraudML.pkl')
+knnAfterLoading = joblib.load('C:\\SeScFRD\\SavedModels\\FraudML.pkl')
 
 #Predict
 
@@ -66,15 +65,15 @@ columnsOnlyX = df20.columns[1:len-1]
 dfOnlyX = df20[columnsOnlyX]
 
 
-df20["Predict"] = knn.predict(dfOnlyX)
+df20["Predict"] = knnAfterLoading.predict(dfOnlyX)
 
 #finalDf = df20[df20["Predict"] == 1]
 #finalDf.to_excel('C:\\FRD\\FRDTransactionResult.xlsx', sheet_name='Predict')
 
 predictlDf = df20[df20["Predict"] == 1]
-flagDf = df20[df20["Flag"] == 1]
+rescanResultDf = df20[df20["RescanResult"] == 1]
 
-ew = pandas.ExcelWriter('C:\\FRD\\FRDTransactionResultsKNN.xlsx')
+ew = pandas.ExcelWriter("C:\\SeScFRD\\Results\\Result.xlsx")
 predictlDf.to_excel(ew, sheet_name='Predict')
-flagDf.to_excel(ew, sheet_name='Flag')
+rescanResultDf.to_excel(ew, sheet_name='RescanResult')
 ew.save() 

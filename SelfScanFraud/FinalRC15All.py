@@ -11,7 +11,7 @@ from sklearn.neural_network import MLPClassifier
 from sklearn.neural_network import MLPRegressor
 from sklearn.model_selection import train_test_split
 
-times = 10
+times = 5
 testSize = 0.2
 
 def runAlgo( inputPathRescan,inputPathAll, excelWriter, outputFileName ):
