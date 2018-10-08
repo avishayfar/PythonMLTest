@@ -8,22 +8,25 @@ from sklearn.externals import joblib
 from sklearn.neighbors import KNeighborsClassifier
 
 
-def GetNormlizeColumnValue (series, threshold, basicStd, basicMean):
-     maxValue = basicStd * threshold
-     minValue = (-1)*maxValue
-     normliazeSeries = series.pipe(lambda x: (x-basicMean) / x.std())
-     normliazeSeries[normliazeSeries > maxValue] = maxValue
-     normliazeSeries[normliazeSeries < minValue] = minValue
-     return normliazeSeries;
-
-def GetNormlizeColumnValueLean (series, threshold):
-    return GetNormlizeColumnValue(series, threshold, series.std(), series.mean())
+def NormlizeColumnsValue (df80, df20, namesOfColumns, threshold):
+    for columnName in namesOfColumns:
+        basicStd  = df80[columnName].std()
+        basicMean = df80[columnName].mean()
+        maxValue = basicStd * threshold
+        minValue = (-1)*maxValue
+        df80[columnName] = df80[columnName].pipe(lambda x: (x-basicMean) / x.std())
+        df80[columnName][df80[columnName] > maxValue] = maxValue
+        df80[columnName][df80[columnName] < minValue] = minValue
+        df20[columnName] = df20[columnName].pipe(lambda x: (x-basicMean) / x.std())
+        df20[columnName][df20[columnName] > maxValue] = maxValue
+        df20[columnName][df20[columnName] < minValue] = minValue
+       
 
 
 namesOfColumn4Learning = ['TrxTotalNzd','VoidedItemsNzd','ValueVoidedLinesNzd','EarlyMorning','lunch','QuantitiyItemsNzd']
-namesOfColumn4Normliaze  = ['TrxTotalNzd','VoidedItemsNzd','ValueVoidedLinesNzd','QuantitiyItemsNzd']
+namesOfColumn4Normliaze  =['TrxTotalNzd','VoidedItemsNzd','ValueVoidedLinesNzd','QuantitiyItemsNzd']
 nameOfRescanResult = 'RescanResult'
-threshold = 3
+threshold = 3 
 
 engine = create_engine('postgresql://postgres:Qwe12345@localhost:5432/FRD')
 
@@ -36,11 +39,17 @@ df =  dfAll[namesOfColumn4Learning]
 df80 = df.sample(frac=0.8)
 df20 = df.loc[~df.index.isin(df80.index)]
 
-for columnName in namesOfColumn4Normliaze:
-    basicStd  = df80[columnName].std()
-    basicMean = df80[columnName].mean()
-    df80[columnName] = GetNormlizeColumnValueLean(df80[columnName], threshold)
-    df20[columnName] = GetNormlizeColumnValue(df80[columnName], threshold, basicStd, basicMean)
+ew = pd.ExcelWriter("C:\\SeScFRD\\Results\\df20Old.xlsx")
+df20.to_excel(ew, sheet_name='df20')
+ew.save()
+
+
+NormlizeColumnsValue(df80,df20,namesOfColumn4Normliaze,3)
+
+
+ew = pd.ExcelWriter("C:\\SeScFRD\\Results\\df20New.xlsx")
+df20.to_excel(ew, sheet_name='df20')
+ew.save()
     
 len = df.shape[1]
 
@@ -83,9 +92,11 @@ df20["Predict"] = knn.predict(dfOnlyX)
 predictlDf = df20[df20["Predict"] == 1]
 rescanResultDf = df20[df20[nameOfRescanResult] == 1]
 
-ew = pandas.ExcelWriter("C:\\SeScFRD\\Results\\ResultNew.xlsx")
+ew = pd.ExcelWriter("C:\\SeScFRD\\Results\\ResultNew.xlsx")
 predictlDf.to_excel(ew, sheet_name='Predict')
 rescanResultDf.to_excel(ew, sheet_name='RescanResult')
 ew.save() 
+
+print("----------------------")
 
 
