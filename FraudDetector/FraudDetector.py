@@ -5,7 +5,7 @@ from pandas.tools.plotting import scatter_matrix
 import matplotlib.pyplot as plt
 from sklearn import model_selection
 from sklearn.externals import joblib
-from sklearn.neighbors import KNeighborsClassifier
+from Factory import GetMLModel
 
 
 def NormlizeColumnsValue (df80, df20, namesOfColumns, threshold):
@@ -25,67 +25,59 @@ def NormlizeColumnValue (df, columnName, basicMean, basicStd, threshold):
 
  ########################################################################
 
-def RunFraudDetector(namesOfColumn4Learning, namesOfColumn4Normliaze, nameOfRescanResult,threshold):
-    namesOfColumn4Learning = ['TrxTotalNzd','VoidedItemsNzd','ValueVoidedLinesNzd','EarlyMorning','lunch','QuantitiyItemsNzd']
-    namesOfColumn4Normliaze  =['TrxTotalNzd','VoidedItemsNzd','ValueVoidedLinesNzd','QuantitiyItemsNzd']
-    nameOfRescanResult = 'RescanResult'
-    threshold = 3 
+def RunFraudDetector(basicDataTableName, storeWithHierarchyName, algorithmName, namesOfColumn4Learning, namesOfColumn4Normliaze, nameOfRescanResult, times, threshold, precision):
 
     engine = create_engine('postgresql://postgres:Qwe12345@localhost:5432/FRD')
 
-    dfAll =  pd.read_sql_query('select * from "test"',con=engine)
+    query = 'select * from "{}"'.format(basicDataTableName)
+    dfAll =  pd.read_sql_query(query, con=engine)
 
     namesOfColumn4Learning.append(nameOfRescanResult)
     df =  dfAll[namesOfColumn4Learning]
 
-    df80 = df.sample(frac=0.8)
-    df20 = df.loc[~df.index.isin(df80.index)]
+    numberOfTruePredictList = []
+    for num in range(0,times):
+        dfForBuildModel = df.sample(frac=0.8)
+        dfFinalTest = df.loc[~df.index.isin(dfForBuildModel.index)]
 
-    NormlizeColumnsValue(df80,df20,namesOfColumn4Normliaze,3)
+        #dfForBuildModel, dfFinalTest  = model_selection.train_test_split(df, test_size=0.2, random_state = num*2)
+
+        NormlizeColumnsValue(dfForBuildModel, dfFinalTest,namesOfColumn4Normliaze,3)
     
-    len = df.shape[1]
+        len = df.shape[1]
 
-    # Print
-    print("dfAll")
-    print(dfAll.shape)
+        # Build data for the machine learning 
 
-    print("df")
-    print(df.shape)
+        array = dfForBuildModel.values
+        data_x = array[:,1:len -1]
+        data_y = array[:,len - 1]
 
-    print("Column")
-    print(df.columns.values)
+        x_train, x_test, y_train, y_test   =  model_selection.train_test_split (data_x, data_y, test_size = 0.2, random_state = 42)
 
-    # Build data for the machine learning 
+        #Start machine learning.
 
-    array = df80.values
-    data_x = array[:,1:len -1]
-    data_y = array[:,len - 1]
+        model = GetMLModel(algorithmName)
+        model.fit(x_train,y_train.astype(int))
+        accuracy = model.score(x_test, y_test.astype(int))
+        print("Accuracy = {}%".format(accuracy * 100))
 
-    x_train, x_test, y_train, y_test   =  model_selection.train_test_split (data_x, data_y, test_size = 0.2, random_state = 42)
+        #Predict
 
-    #Start machine learning.
+        columnsOnlyX = dfFinalTest.columns[1:len-1]
+        dfOnlyX = dfFinalTest[columnsOnlyX]
+        dfFinalTest["Predict"] = model.predict(dfOnlyX)
 
-    knn = KNeighborsClassifier()
-    knn.fit(x_train,y_train.astype(int))
-    accuracy = knn.score(x_test, y_test.astype(int))
-    print("Accuracy = {}%".format(accuracy * 100))
+        #Get specific data information
 
-    #Predict
+        lenOfFinalTest = dfFinalTest.shape[0] 
+        lenOfDefinedPercentFinalTest = int(precision/100*lenOfFinalTest)
+        dfFinalTest = dfFinalTest.sort_values(by="Predict")
+        numberOfTruePredict = (dfFinalTest[nameOfRescanResult][dfFinalTest[nameOfRescanResult] > 0]).sum()
+        numOfallPredict = df.shape[1]
+        numberOfTruePredictList.append(numberOfTruePredict/len)
 
-    columnsOnlyX = df20.columns[1:len-1]
-    dfOnlyX = df20[columnsOnlyX]
-    df20["Predict"] = knn.predict(dfOnlyX)
-
-    #Create xls
-
-    predictlDf = df20[df20["Predict"] == 1]
-    rescanResultDf = df20[df20[nameOfRescanResult] == 1]
-
-    ew = pd.ExcelWriter("C:\\SeScFRD\\Results\\ResultNew.xlsx")
-    predictlDf.to_excel(ew, sheet_name='Predict')
-    rescanResultDf.to_excel(ew, sheet_name='RescanResult')
-    ew.save() 
-
-    print("----------------------")
+    ndList = np.array(numberOfTruePredictList)
+    return ndList.mean()
 
 
+   
