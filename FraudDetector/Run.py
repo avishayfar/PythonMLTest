@@ -12,13 +12,15 @@ inputFilePath = "C:\SeScFRD\Input\InputParameters.xlsx"
 inputDf = pd.read_excel(inputFilePath)
 
 #Run the fraud detector on the input data
-ResultsDf = pd.DataFrame(columns=['TestName', 'Result'])
+ResultsDf = pd.DataFrame(columns=['TestName', 'Model','Times','Precsion of Original Fraud', 'Precsion Of Predict Fruad','Original Precsion Of Lines For Recall','Precsion Of Lines For Recall', 'Original Shrinkage Per Line', 'Shrinkage Per Line'])
 for i in range( len(inputDf.index)):
     testName = inputDf['TestName'].iloc[i]
     namesOfColumn4LearningLst = inputDf['namesOfColumn4Learning'].iloc[i].split()
-    namesOfColumn4NormliazeLst = inputDf['namesOfColumn4Normliaze'].iloc[i].split()
-    result = RunFraudDetector(inputDf['basicDataTableName'].iloc[i], inputDf['storeWithHierarchyTableName'].iloc[i], inputDf['modelName'].iloc[i], namesOfColumn4LearningLst, namesOfColumn4NormliazeLst, inputDf['nameOfRescanResult'].iloc[i], inputDf['times'].iloc[i], inputDf['threshold'].iloc[i], inputDf['precision'].iloc[i])
-    ResultsDf.loc[i] = [testName,result]
+    namesOfColumn4NormliazeLst = ""
+    if(not pd.isnull(inputDf['namesOfColumn4Normliaze'].iloc[0])):
+        namesOfColumn4NormliazeLst = inputDf['namesOfColumn4Normliaze'].iloc[i].split()
+    dic = RunFraudDetector(inputDf['basicDataTableName'].iloc[i], inputDf['storeWithHierarchyTableName'].iloc[i], inputDf['modelName'].iloc[i], namesOfColumn4LearningLst, namesOfColumn4NormliazeLst, inputDf['RescanResultColumnName'].iloc[i], inputDf['ShrinkageColumnName'].iloc[i], inputDf['times'].iloc[i], inputDf['threshold'].iloc[i], inputDf['OriginRescanRate'].iloc[i])
+    ResultsDf.loc[i] = [testName,dic["Model"],dic["Times"],dic["PrecsionOfOriginalFraud"], dic["PrecsionOfTruePredict"],dic["OriginalPrecisionOfLinesForRecall"],dic['PrecisionOfLinesForRecall'],dic['OriginalShrinkagePerLine'],dic['ShrinkagePerLine']]
 
 #Save the results to file  
 outputPath = "C:\\SeScFRD\\Results\\" + outputFileName 
@@ -32,13 +34,3 @@ ew.save()
 
 
 
-
-#basicDataTableName = "ItamarBaseData"
-#storeWithHierarchyTableName = "StoreWithHierarchy"
-#modelName =  'MLP'
-#namesOfColumn4Learning = ['NumberOfItems','TransactionSSCTotal','AvgItemPrice','ItemPriceVariation','TrustLevel1','TrustLevel2','TrustLevel3','TrustLevel4','TrustLevel5','NumberOfVoidedItems','ValueOfVoidedLines','AvgVoidedItemPrice','NumberOfDistinctItem','RatioOfDistinctItem','transactionCloseTime','TransactionScanTimeDuration']
-#namesOfColumn4Normliaze  =['NumberOfItems','TransactionSSCTotal','AvgItemPrice','ItemPriceVariation','NumberOfVoidedItems','ValueOfVoidedLines', 'AvgVoidedItemPrice','NumberOfDistinctItem','RatioOfDistinctItem','TransactionScanTimeDuration']
-#nameOfRescanResult = 'RescanResult'
-#precision = 15
-#threshold = 3 
-#times = 10

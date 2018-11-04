@@ -8,6 +8,7 @@ from sklearn.naive_bayes import GaussianNB
 from sklearn.svm import SVC
 from sklearn.neural_network import MLPClassifier
 from sklearn.neural_network import MLPRegressor
+
 from sklearn.ensemble import RandomForestClassifier
 
 
@@ -27,4 +28,5 @@ def GetMLModel(algorithName):
     if (algorithName == 'SVC'):
         return SVC()
     if (algorithName == 'MLP'):
-        return MLPClassifier(early_stopping=True,validation_fraction=0.2,max_iter=500)
+        return MLPClassifier(early_stopping=False,validation_fraction=0.1,max_iter=200)
+   

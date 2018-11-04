@@ -25,6 +25,9 @@
       <SubType>Code</SubType>
     </Compile>
     <Compile Include="FraudDetector.py" />
+    <Compile Include="PlayGround.py">
+      <SubType>Code</SubType>
+    </Compile>
     <Compile Include="Run.py">
       <SubType>Code</SubType>
     </Compile>
