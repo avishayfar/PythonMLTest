@@ -2,15 +2,15 @@
   <PropertyGroup>
     <Configuration Condition=" '$(Configuration)' == '' ">Debug</Configuration>
     <SchemaVersion>2.0</SchemaVersion>
-    <ProjectGuid>775d209a-cf16-4738-8b68-11d68142be22</ProjectGuid>
+    <ProjectGuid>f90bd35b-8cc0-441f-bc65-2259dc17c731</ProjectGuid>
     <ProjectHome>.</ProjectHome>
-    <StartupFile>Run.py</StartupFile>
+    <StartupFile>FraudDetectorAllPrecision.py</StartupFile>
     <SearchPath>
     </SearchPath>
     <WorkingDirectory>.</WorkingDirectory>
     <OutputPath>.</OutputPath>
-    <Name>FraudDetector</Name>
-    <RootNamespace>FraudDetector</RootNamespace>
+    <Name>FraudDetectorAllPrecision</Name>
+    <RootNamespace>FraudDetectorAllPrecision</RootNamespace>
   </PropertyGroup>
   <PropertyGroup Condition=" '$(Configuration)' == 'Debug' ">
     <DebugSymbols>true</DebugSymbols>
@@ -21,17 +21,8 @@
     <EnableUnmanagedDebugging>false</EnableUnmanagedDebugging>
   </PropertyGroup>
   <ItemGroup>
-    <Compile Include="Factory.py">
-      <SubType>Code</SubType>
-    </Compile>
     <Compile Include="FraudDetectorAllPrecision.py" />
-    <Compile Include="FraudDetector.py" />
-    <Compile Include="PlayGround.py">
-      <SubType>Code</SubType>
-    </Compile>
-    <Compile Include="Run.py">
-      <SubType>Code</SubType>
-    </Compile>
+    <Compile Include="Run.py" />
   </ItemGroup>
   <Import Project="$(MSBuildExtensionsPath32)\Microsoft\VisualStudio\v$(VisualStudioVersion)\Python Tools\Microsoft.PythonTools.targets" />
   <!-- Uncomment the CoreCompile target to enable the Build command in

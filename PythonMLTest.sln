@@ -11,6 +11,8 @@ Project("{888888A0-9F3D-457C-B088-3A5042F75D52}") = "FraudBase", "FraudBase\Frau
 EndProject
 Project("{888888A0-9F3D-457C-B088-3A5042F75D52}") = "FraudDetector", "FraudDetector\FraudDetector.pyproj", "{775D209A-CF16-4738-8B68-11D68142BE22}"
 EndProject
+Project("{888888A0-9F3D-457C-B088-3A5042F75D52}") = "FraudDetectorAllPrecision", "FraudDetectorAllPrecision\FraudDetectorAllPrecision.pyproj", "{F90BD35B-8CC0-441F-BC65-2259DC17C731}"
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU
@@ -25,6 +27,8 @@ Global
 		{1FDF14E9-A156-43E8-9755-FB81240E80CA}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{775D209A-CF16-4738-8B68-11D68142BE22}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
 		{775D209A-CF16-4738-8B68-11D68142BE22}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{F90BD35B-8CC0-441F-BC65-2259DC17C731}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{F90BD35B-8CC0-441F-BC65-2259DC17C731}.Release|Any CPU.ActiveCfg = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE

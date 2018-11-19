@@ -1,3 +1,4 @@
+
 import pandas as pd
 import numpy as np
 from sqlalchemy import *
@@ -7,9 +8,6 @@ from sklearn import model_selection
 from sklearn.externals import joblib
 from Factory import GetMLModel
 from sklearn.model_selection import train_test_split
-
-
-testSize = 0.2
 
 
 def NormlizeColumnsValue (df80, df20, namesOfColumns, threshold):
@@ -31,55 +29,34 @@ def NormlizeColumnValue (df, columnName, basicMean, basicStd, threshold):
 
  ########################################################################
 
-def RunFraudDetector(basicDataTableName, byPrecision, algorithmName, namesOfColumn4Learning, namesOfColumn4Normliaze, rescanResultColumnName, shrinkageColumnName, times, threshold, OriginRescanRate):
-
-    #engine = create_engine('postgresql://postgres:Qwe12345@localhost:5432/FRD')
-    #query = 'select * from "{}"'.format(basicDataTableName)   
-    #dfAll =  pd.read_sql_query(query, con=engine)
-
-    #tempPath = "C:\\SeScFRD\\Input\\ItamarData.xlsx"
+def RunFraudDetector( algorithmName, namesOfColumn4Learning, namesOfColumn4Normliaze, rescanResultColumnName, shrinkageColumnName, threshold, OriginRescanRate):
+   
     tempPath = "C:\\SeScFRD\\Input\\dataWithHierarchies.xlsx"
     dfAll = pd.read_excel(tempPath)
-
 
     namesOfAllColumns = namesOfColumn4Learning.copy()
     namesOfAllColumns.append(rescanResultColumnName)
     namesOfAllColumns.append(shrinkageColumnName)
 
-    if(byPrecision>0):
-        dfAll["PosTransactionId"] = dfAll["PosTransactionId"].str[9:-12]
-        dfAll["PosTransactionId"] = pd.to_datetime(dfAll["PosTransactionId"], format='%m/%d/%Y')
-        dfAll = dfAll.sort_values(by="PosTransactionId",ascending = True)
+    dfAll["PosTransactionId"] = dfAll["PosTransactionId"].str[9:-12]
+    dfAll["PosTransactionId"] = pd.to_datetime(dfAll["PosTransactionId"], format='%m/%d/%Y')
+    dfAll = dfAll.sort_values(by="PosTransactionId",ascending = True)
 
     df = dfAll[namesOfAllColumns]
-
-    dfResult_1 = df[df[rescanResultColumnName] == 1]
-    dfResult_0 = df[df[rescanResultColumnName] == 0]
-
+   
     OriginalFraudPrecision = dfResult_1.shape[0]/df.shape[0]
 
     shrinkageSum = df[shrinkageColumnName].sum()
     originalShrinkagePerFruadLine = shrinkageSum/(df.shape[0])
 
-    if(byPrecision>1):
-        times = 1
-    numberOfTruePredictList = []
-    precisionOfLines4RecallList = []
-    precsionOfShrinkage4LineList = []
-    for num in range(0,times):
+    ResultsDf = pd.DataFrame(columns=['Precision Of Data', 'Model' , 'Pivot Value', 'Precsion Of Predict Fruad', 'Shrinkage Per Line'])
+    for num in range(1,99):
 
         #Build dfForBuildModel dfFinalTest 
-        if(byPrecision==0):
-            dfForBuildModel_1, dfFinalTest_1 = train_test_split(dfResult_1, test_size=testSize)
-            dfForBuildModel_0, dfFinalTest_0 = train_test_split(dfResult_0, test_size=testSize)
-
-            dfForBuildModel = dfForBuildModel_1.append(dfForBuildModel_0)
-            dfFinalTest = dfFinalTest_1.append(dfFinalTest_0)
-        else:
-            head = int(df.shape[0] * byPrecision/100)
-            tail = df.shape[0] - head
-            dfForBuildModel = df.head(head)
-            dfFinalTest = df.tail(tail)
+        BuildModelSize = int(df.shape[0] * num/100)
+        testSize = 100
+        dfForBuildModel = df.head(BuildModelSize)
+        dfFinalTest = df[BuildModelSize+1, BuildModelSize+101]
 
         if(namesOfColumn4Normliaze != ""):
             NormlizeColumnsValue(dfForBuildModel, dfFinalTest,namesOfColumn4Normliaze,3)
@@ -116,6 +93,7 @@ def RunFraudDetector(basicDataTableName, byPrecision, algorithmName, namesOfColu
 
         dfFinalTest = dfFinalTest.sort_values(by="Predict",ascending = True)
         df4Analayze = dfFinalTest.head(numberOfRows4Anlayze)
+        pivotValue = dfFinalTest.iloc[numberOfRows4Anlayze]["Predict"]
         numberOfTruePredict = (df4Analayze[rescanResultColumnName][df4Analayze[rescanResultColumnName] > 0]).sum()
         precsionOfShrinkage4Line = df4Analayze[shrinkageColumnName].sum()/numberOfRows4Anlayze 
         precisionOfTruePredict = numberOfTruePredict/df4Analayze.shape[0]*100
@@ -131,28 +109,9 @@ def RunFraudDetector(basicDataTableName, byPrecision, algorithmName, namesOfColu
         print(".......................................")
         print()
 
-        numberOfTruePredictList.append(precisionOfTruePredict)
-        precisionOfLines4RecallList.append(precisionOfRecall4GetPreDefinedFraud)
-        precsionOfShrinkage4LineList.append(precsionOfShrinkage4Line)
+        ResultsDf.loc[num-1] = [num,algorithmName, pivotValue, precisionOfTruePredict, precsionOfShrinkage4Line]
 
-    numberOfTruePredictNdList = np.array(numberOfTruePredictList)
-    precisionOfRecalLineslNdList = np.array(precisionOfLines4RecallList)
-    precsionOfShrinkage4LineNdList = np.array(precsionOfShrinkage4LineList)
-
-    FraudResults = {}
-    FraudResults["Model"] = algorithmName
-    FraudResults["Times"] = times
-    #Precsion Of true predict
-    FraudResults["PrecsionOfOriginalFraud"] = OriginalFraudPrecision*100
-    FraudResults["PrecsionOfTruePredict"] = numberOfTruePredictNdList.mean()
-    #Recall
-    FraudResults["OriginalPrecisionOfLinesForRecall"] = OriginRescanRate
-    FraudResults["PrecisionOfLinesForRecall"] = precisionOfRecalLineslNdList.mean()
-    #Shrinkage
-    FraudResults["OriginalShrinkagePerLine"] = originalShrinkagePerFruadLine
-    FraudResults["ShrinkagePerLine"] = precsionOfShrinkage4LineNdList.mean()
-
-    return FraudResults
+    return ResultsDf
 
 def GetRecallPrecision(dfWithScanResult, rescanResultColumnName, numberOfRealFraudLinesToBeCatch):
    len = dfWithScanResult.shape[0]

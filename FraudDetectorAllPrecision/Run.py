@@ -5,7 +5,7 @@ from sklearn.linear_model import LogisticRegression
 from sklearn.neural_network import MLPClassifier
 from sklearn.neural_network import MLPRegressor
 
-outputFileName = "TestResult1.xlsx"
+outputFileName = "TestResult2.xlsx"
 inputFilePath = "C:\SeScFRD\Input\InputParameters.xlsx"
 
 #Read the Input file
@@ -21,7 +21,7 @@ for i in range( len(inputDf.index)):
     if(not pd.isnull(inputDf['namesOfColumn4Normliaze'].iloc[0])):
         namesOfColumn4NormliazeLst = inputDf['namesOfColumn4Normliaze'].iloc[i].split()
 
-    dic = RunFraudDetector(inputDf['basicDataTableName'].iloc[i], inputDf['byPrecision'].iloc[i], inputDf['modelName'].iloc[i], namesOfColumn4LearningLst, namesOfColumn4NormliazeLst, inputDf['RescanResultColumnName'].iloc[i], inputDf['ShrinkageColumnName'].iloc[i], inputDf['times'].iloc[i], inputDf['threshold'].iloc[i], inputDf['OriginRescanRate'].iloc[i])
+    ResultsDf = RunFraudDetector(inputDf['basicDataTableName'].iloc[i], inputDf['byPrecision'].iloc[i], inputDf['modelName'].iloc[i], namesOfColumn4LearningLst, namesOfColumn4NormliazeLst, inputDf['RescanResultColumnName'].iloc[i], inputDf['ShrinkageColumnName'].iloc[i], inputDf['times'].iloc[i], inputDf['threshold'].iloc[i], inputDf['OriginRescanRate'].iloc[i])
     ResultsDf.loc[i] = [testName,dic["Model"],dic["Times"],dic["PrecsionOfOriginalFraud"], dic["PrecsionOfTruePredict"],dic["OriginalPrecisionOfLinesForRecall"],dic['PrecisionOfLinesForRecall'],dic['OriginalShrinkagePerLine'],dic['ShrinkagePerLine']]
 
 #Save the results to file  
