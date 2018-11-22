@@ -25,7 +25,7 @@ for i in range( len(inputDf.index)):
     ResultsDf.loc[i] = [testName,dic["Model"],dic["Times"],dic["PrecsionOfOriginalFraud"], dic["PrecsionOfTruePredict"],dic["OriginalPrecisionOfLinesForRecall"],dic['PrecisionOfLinesForRecall'],dic['OriginalShrinkagePerLine'],dic['ShrinkagePerLine']]
 
 #Save the results to file  
-outputPath = "C:\\SeScFRD\\Results\\" + outputFileName 
+outputPath = "C:\\SeScFRD\\Results\\" + outputFileName
 ew = pd.ExcelWriter(outputPath)
 ResultsDf.to_excel(ew, sheet_name='TestResult')
 ew.save()

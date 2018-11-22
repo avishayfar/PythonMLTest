@@ -116,6 +116,7 @@ def RunFraudDetector(basicDataTableName, byPrecision, algorithmName, namesOfColu
 
         dfFinalTest = dfFinalTest.sort_values(by="Predict",ascending = True)
         df4Analayze = dfFinalTest.head(numberOfRows4Anlayze)
+        pivotValue = dfFinalTest.iloc[numberOfRows4Anlayze]["Predict"]
         numberOfTruePredict = (df4Analayze[rescanResultColumnName][df4Analayze[rescanResultColumnName] > 0]).sum()
         precsionOfShrinkage4Line = df4Analayze[shrinkageColumnName].sum()/numberOfRows4Anlayze 
         precisionOfTruePredict = numberOfTruePredict/df4Analayze.shape[0]*100
@@ -125,6 +126,7 @@ def RunFraudDetector(basicDataTableName, byPrecision, algorithmName, namesOfColu
 
         print("numberOfAllRowsFinalTest - ", numberOfAllRowsFinalTest)
         print("numberOfRows4Anlayze - ", numberOfRows4Anlayze)
+        print("pivotValue - ", pivotValue)
         print("precisionOfTruePredict - ", precisionOfTruePredict) 
         print("precsionOfShrinkage4Line - ", precsionOfShrinkage4Line)
         print("precisionOfRecall4GetPreDefinedFraud - ", precisionOfRecall4GetPreDefinedFraud)

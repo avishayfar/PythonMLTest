@@ -24,7 +24,6 @@
     <Compile Include="Factory.py">
       <SubType>Code</SubType>
     </Compile>
-    <Compile Include="FraudDetectorAllPrecision.py" />
     <Compile Include="FraudDetector.py" />
     <Compile Include="PlayGround.py">
       <SubType>Code</SubType>

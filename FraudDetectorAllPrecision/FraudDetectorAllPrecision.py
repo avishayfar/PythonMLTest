@@ -10,12 +10,13 @@ from Factory import GetMLModel
 from sklearn.model_selection import train_test_split
 
 
-def NormlizeColumnsValue (df80, df20, namesOfColumns, threshold):
+def NormlizeColumnsValue (df1, df2, df3, namesOfColumns, threshold):
     for columnName in namesOfColumns:
-        basicStd  = df80[columnName].std()
-        basicMean = df80[columnName].mean()
-        NormlizeColumnValue (df80, columnName, basicMean, basicStd, threshold)
-        NormlizeColumnValue (df20, columnName, basicMean, basicStd, threshold)
+        basicStd  = df1[columnName].std()
+        basicMean = df1[columnName].mean()
+        NormlizeColumnValue (df1, columnName, basicMean, basicStd, threshold)
+        NormlizeColumnValue (df2, columnName, basicMean, basicStd, threshold)
+        NormlizeColumnValue (df3, columnName, basicMean, basicStd, threshold)
 
 
 def NormlizeColumnValue (df, columnName, basicMean, basicStd, threshold):
@@ -44,30 +45,31 @@ def RunFraudDetector( algorithmName, namesOfColumn4Learning, namesOfColumn4Norml
 
     df = dfAll[namesOfAllColumns]
    
-    OriginalFraudPrecision = dfResult_1.shape[0]/df.shape[0]
-
     shrinkageSum = df[shrinkageColumnName].sum()
     originalShrinkagePerFruadLine = shrinkageSum/(df.shape[0])
 
-    ResultsDf = pd.DataFrame(columns=['Precision Of Data', 'Model' , 'Pivot Value', 'Precsion Of Predict Fruad', 'Shrinkage Per Line'])
-    for num in range(1,99):
+    ResultsDf = pd.DataFrame(columns=['Precision Of Data', 'Model' , 'Pivot Value', 'Precision Of Analayze', 'Precsion Of Predict Fruad', 'Shrinkage Per Line'])
+    for num in range(1,89,2):
 
         #Build dfForBuildModel dfFinalTest 
+        testSize = int(df.shape[0] /10)
+        df4FindPivotSize = int(df.shape[0] /20)
         BuildModelSize = int(df.shape[0] * num/100)
-        testSize = 100
         dfForBuildModel = df.head(BuildModelSize)
-        dfFinalTest = df[BuildModelSize+1, BuildModelSize+101]
+        df4FindPivotHighIndex = BuildModelSize + df4FindPivotSize
+        df4FindPivot = df[BuildModelSize+1:df4FindPivotHighIndex]
+        dfFinalTest = df[df4FindPivotHighIndex+1:df4FindPivotHighIndex + testSize]
 
         if(namesOfColumn4Normliaze != ""):
-            NormlizeColumnsValue(dfForBuildModel, dfFinalTest,namesOfColumn4Normliaze,3)
+            NormlizeColumnsValue(dfForBuildModel, dfFinalTest, df4FindPivot, namesOfColumn4Normliaze,3)
     
         #print data
         print()
         print(".....................................")
         print("All data size - ", df.shape)
-        print("The precsion of fraud - ", OriginalFraudPrecision)
         print("dfForBuildModel size - ", dfForBuildModel.shape)
         print("dfFinalTest size - ", dfFinalTest.shape)
+        print("-->")
 
         # Build data for the machine learning 
 
@@ -79,48 +81,49 @@ def RunFraudDetector( algorithmName, namesOfColumn4Learning, namesOfColumn4Norml
         model = GetMLModel(algorithmName)
         model.fit(dfForBuildModel_x, dfForBuildModel_y.astype(int))
 
-        print("model -", algorithmName)
+        #Predict df4FindPivot
+        dfOnlyX = df4FindPivot[namesOfColumn4Learning]
+        df4FindPivot["Predict"] = model.predict_proba(dfOnlyX)[:,1]  
 
-        #Predict
+        #Find the Pivot
+        numberOfAllRowsFinalTest = df4FindPivot.shape[0] 
+        numberOfRows4Anlayze = int(numberOfAllRowsFinalTest * OriginRescanRate/100)
 
+        df4FindPivot = df4FindPivot.sort_values(by="Predict",ascending = False)
+        df4Analayze = df4FindPivot.head(numberOfRows4Anlayze)
+        pivotValue = df4FindPivot.iloc[numberOfRows4Anlayze]["Predict"]
+       
+        #Predict dfFinalTest
         dfOnlyX = dfFinalTest[namesOfColumn4Learning]
-        dfFinalTest["Predict"] = model.predict_proba(dfOnlyX)[:,0]  
+        dfFinalTest["Predict"] = model.predict_proba(dfOnlyX)[:,1]  
 
-        #Get specific data information
-
+        #Find the true predict
         numberOfAllRowsFinalTest = dfFinalTest.shape[0] 
         numberOfRows4Anlayze = int(numberOfAllRowsFinalTest * OriginRescanRate/100)
 
-        dfFinalTest = dfFinalTest.sort_values(by="Predict",ascending = True)
-        df4Analayze = dfFinalTest.head(numberOfRows4Anlayze)
-        pivotValue = dfFinalTest.iloc[numberOfRows4Anlayze]["Predict"]
+        df4Analayze = dfFinalTest[dfFinalTest["Predict"] > pivotValue]
+        numberOfRows4Anlayze = df4Analayze.shape[0]
+        pivotValueb = df4Analayze.iloc[numberOfRows4Anlayze-1]["Predict"]
         numberOfTruePredict = (df4Analayze[rescanResultColumnName][df4Analayze[rescanResultColumnName] > 0]).sum()
         precsionOfShrinkage4Line = df4Analayze[shrinkageColumnName].sum()/numberOfRows4Anlayze 
         precisionOfTruePredict = numberOfTruePredict/df4Analayze.shape[0]*100
 
-        numberOfRealFraudLinesToBeCatch = round(OriginalFraudPrecision * numberOfRows4Anlayze) 
-        precisionOfRecall4GetPreDefinedFraud = GetRecallPrecision(dfFinalTest, rescanResultColumnName, numberOfRealFraudLinesToBeCatch)
+        #df4Analayze = dfFinalTest[dfFinalTest["Predict"] > pivotValue]
 
-        print("numberOfAllRowsFinalTest - ", numberOfAllRowsFinalTest)
-        print("numberOfRows4Anlayze - ", numberOfRows4Anlayze)
+        print("Precision of data- ", num)
+        print("numberOfAllRowsFinalTest - ", dfFinalTest.shape[0])
+        print("numberOfRows4Anlayze - ", df4Analayze.shape[0])
+        precisionOfAnalayze = df4Analayze.shape[0]/dfFinalTest.shape[0]*100
+        print("precisionOfAnalayze- ", precisionOfAnalayze)
+        print("pivotValue - ", pivotValue)
+        print("pivotValueb - ", pivotValueb)
         print("precisionOfTruePredict - ", precisionOfTruePredict) 
-        print("precsionOfShrinkage4Line - ", precsionOfShrinkage4Line)
-        print("precisionOfRecall4GetPreDefinedFraud - ", precisionOfRecall4GetPreDefinedFraud)
         print(".......................................")
         print()
 
-        ResultsDf.loc[num-1] = [num,algorithmName, pivotValue, precisionOfTruePredict, precsionOfShrinkage4Line]
+        ResultsDf.loc[num-1] = [num,algorithmName, pivotValue,precisionOfAnalayze, precisionOfTruePredict, precsionOfShrinkage4Line]
 
     return ResultsDf
 
-def GetRecallPrecision(dfWithScanResult, rescanResultColumnName, numberOfRealFraudLinesToBeCatch):
-   len = dfWithScanResult.shape[0]
-  
-   numberOfResult = 0
-   for num in range(0,len):
-      numberOfResult += dfWithScanResult[rescanResultColumnName].iloc[num]
-      if (numberOfRealFraudLinesToBeCatch == numberOfResult):
-          recallPrcesion = num/len*100
-          return recallPrcesion;
-   return 100;
+
 
