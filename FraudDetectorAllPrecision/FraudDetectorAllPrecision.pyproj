@@ -22,6 +22,7 @@
   </PropertyGroup>
   <ItemGroup>
     <Compile Include="Factory.py" />
+    <Compile Include="FraudDetectorSelfLearningy.py" />
     <Compile Include="FraudDetectorAllPrecision.py" />
     <Compile Include="Run.py" />
   </ItemGroup>

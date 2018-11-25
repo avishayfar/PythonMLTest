@@ -1,4 +1,5 @@
 from FraudDetectorAllPrecision import RunFraudDetector
+from FraudDetectorSelfLearningy import RunFraudDetectorSelfLearning
 import pandas as pd
 from sklearn.neighbors import KNeighborsClassifier
 from sklearn.linear_model import LogisticRegression
@@ -21,7 +22,7 @@ for i in range( len(inputDf.index)):
     if(not pd.isnull(inputDf['namesOfColumn4Normliaze'].iloc[0])):
         namesOfColumn4NormliazeLst = inputDf['namesOfColumn4Normliaze'].iloc[i].split()
 
-    ResultsDf = RunFraudDetector(inputDf['modelName'].iloc[i], namesOfColumn4LearningLst, namesOfColumn4NormliazeLst, inputDf['RescanResultColumnName'].iloc[i], inputDf['ShrinkageColumnName'].iloc[i], inputDf['threshold'].iloc[i], inputDf['OriginRescanRate'].iloc[i])
+    ResultsDf = RunFraudDetectorSelfLearning(inputDf['modelName'].iloc[i], namesOfColumn4LearningLst, namesOfColumn4NormliazeLst, inputDf['RescanResultColumnName'].iloc[i], inputDf['ShrinkageColumnName'].iloc[i], inputDf['threshold'].iloc[i], inputDf['OriginRescanRate'].iloc[i])
     #Save the results to file  
     outputPath = "C:\\SeScFRD\\Results\\" + testName + "Result.xlsx" 
     ew = pd.ExcelWriter(outputPath)
